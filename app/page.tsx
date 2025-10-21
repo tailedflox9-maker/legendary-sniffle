@@ -236,15 +236,41 @@ export default function Home() {
       const element = document.getElementById("post-canvas");
       if (!element) return;
 
-      const canvas = await html2canvas(element, {
+      // Clone the element to avoid modifying the original
+      const clone = element.cloneNode(true) as HTMLElement;
+      clone.style.position = "absolute";
+      clone.style.left = "-9999px";
+      document.body.appendChild(clone);
+
+      // Convert all CSS color functions to RGB
+      const allElements = clone.querySelectorAll("*");
+      allElements.forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        const computedStyle = window.getComputedStyle(el);
+        
+        // Convert colors to RGB
+        if (computedStyle.backgroundColor) {
+          htmlEl.style.backgroundColor = computedStyle.backgroundColor;
+        }
+        if (computedStyle.color) {
+          htmlEl.style.color = computedStyle.color;
+        }
+        if (computedStyle.borderColor) {
+          htmlEl.style.borderColor = computedStyle.borderColor;
+        }
+      });
+
+      const canvas = await html2canvas(clone, {
         backgroundColor: null,
         scale: 3,
         logging: false,
         useCORS: true,
         allowTaint: true,
         imageTimeout: 0,
-        removeContainer: true,
       });
+
+      // Remove clone
+      document.body.removeChild(clone);
 
       canvas.toBlob((blob) => {
         if (blob) {
@@ -288,7 +314,31 @@ export default function Home() {
         setCurrentSlideIndex(i);
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        const canvas = await html2canvas(element, {
+        // Clone the element to avoid modifying the original
+        const clone = element.cloneNode(true) as HTMLElement;
+        clone.style.position = "absolute";
+        clone.style.left = "-9999px";
+        document.body.appendChild(clone);
+
+        // Convert all CSS color functions to RGB
+        const allElements = clone.querySelectorAll("*");
+        allElements.forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          const computedStyle = window.getComputedStyle(el);
+          
+          // Convert colors to RGB
+          if (computedStyle.backgroundColor) {
+            htmlEl.style.backgroundColor = computedStyle.backgroundColor;
+          }
+          if (computedStyle.color) {
+            htmlEl.style.color = computedStyle.color;
+          }
+          if (computedStyle.borderColor) {
+            htmlEl.style.borderColor = computedStyle.borderColor;
+          }
+        });
+
+        const canvas = await html2canvas(clone, {
           backgroundColor: null,
           scale: 3,
           logging: false,
@@ -296,6 +346,9 @@ export default function Home() {
           allowTaint: true,
           imageTimeout: 0,
         });
+
+        // Remove clone
+        document.body.removeChild(clone);
 
         const imgData = canvas.toDataURL("image/png", 1.0);
         if (i > 0) pdf.addPage([1080, 1080], "portrait");
